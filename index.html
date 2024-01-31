@@ -1,12 +1,44 @@
 <!doctype html>
 <html lang="en">
-	<head>
+<head>
 		<title>what's alex listening to</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1">
-	</head>
-	<body>
+</head>
+<body>
+<script>
+
+</script>
+<h1>alex is listening to:</h1>
+<p><span id="trackName"></span> by <span id="Artist"></span></p>
+<img id="albumCover" src="" alt="" crossorigin="anonymous"></img>	
 	<script>
+					function getDominantColor() {
+						const img = document.getElementById('albumCover');
+						const canvas = document.createElement('canvas');
+						const ctx = canvas.getContext('2d');
+						canvas.width = img.width;
+						canvas.height = img.height;
+						ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+						const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+						const data = imageData.data;
+
+						let r = 0, g = 0, b = 0;
+
+						for (let i = 0; i < data.length; i += 4) {
+							r += data[i];
+							g += data[i + 1];
+							b += data[i + 2];
+						}
+
+						const pixelCount = data.length / 4;
+						const avgR = Math.round(r / pixelCount);
+						const avgG = Math.round(g / pixelCount);
+						const avgB = Math.round(b / pixelCount);
+
+						return `rgb(${avgR}, ${avgG}, ${avgB})`;
+					}
 			window.onload = function() {
 			    const endpoint = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&limit=6`;
 				    fetch(endpoint)
@@ -22,22 +54,17 @@
 						document.getElementById('Artist').innerText = artist;
 						document.getElementById('albumCover').src = albumCoverURL;
 						document.getElementById('albumCover').alt = album;
-					  })
-					  .catch(error => {
-						console.error('Error fetching recent tracks:', error);
-					  });					
+						const dominantColor = getDominantColor();
+						document.body.style.backgroundColor = dominantColor;
+					  })					  
 			};
-		</script>
-		<h1>alex is listening to:</h1>
-		<p><span id="trackName"></span> by <span id="Artist"></span></p>
-		<img id="albumCover" src="" alt=""></img>		
-	</body>
+	</script>
 <style>
     @font-face {
         font-family: 'Comic Sans MS';
         src: url('cs.woff2') format('woff2');
     }
-	h1 {
+	h1, p {
 		font-family: 'Comic Sans MS', cursive, sans-serif;
 		}
 	body {
@@ -45,4 +72,5 @@
 	margin: auto;
 	}
 </style>
+</body>
 </html>
