@@ -54,9 +54,11 @@
 						document.getElementById('Artist').innerText = artist;
 						document.getElementById('albumCover').src = albumCoverURL;
 						document.getElementById('albumCover').alt = album;
-						const dominantColor = getDominantColor();
+						albumCover.onload = function() {const dominantColor = getDominantColor();
 						document.body.style.backgroundColor = dominantColor;
-					  })					  
+							};
+						})
+									
 			};
 	</script>
 <style>
