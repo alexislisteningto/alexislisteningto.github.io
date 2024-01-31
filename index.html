@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>what's alex listening to</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+	</head>
+	<body>
+	<script>
+			window.onload = function() {
+			    const endpoint = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&limit=6`;
+				    fetch(endpoint)
+					  .then(response => response.text())
+					  .then(data => {
+						const parser = new DOMParser();
+						const xmlData = parser.parseFromString(data, 'application/xml');
+						const trackName = xmlData.querySelector('name').textContent;
+						const artist = xmlData.querySelector('artist').textContent;
+						const album = xmlData.querySelector('album').textContent;
+						const albumCoverURL = xmlData.querySelector('image[size="extralarge"]').textContent;
+						document.getElementById('trackName').innerText = trackName;
+						document.getElementById('Artist').innerText = artist;
+						document.getElementById('albumCover').src = albumCoverURL;
+						document.getElementById('albumCover').alt = album;
+					  })
+					  .catch(error => {
+						console.error('Error fetching recent tracks:', error);
+					  });					
+			};
+		</script>
+		<h1>alex is listening to:</h1>
+		<p><span id="trackName"></span> by <span id="Artist"></span></p>
+		<img id="albumCover" src="" alt=""></img>		
+	</body>
+<style>
+    @font-face {
+        font-family: 'Comic Sans MS';
+        src: url('cs.woff2') format('woff2');
+    }
+	h1 {
+		font-family: 'Comic Sans MS', cursive, sans-serif;
+		}
+	body {
+	max-width: max-content;
+	margin: auto;
+	}
+</style>
+</html>
