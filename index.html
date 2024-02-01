@@ -40,26 +40,28 @@
 
 						return `rgb(${avgR}, ${avgG}, ${avgB})`;
 					}
+					function getLatestInfo() {
+						const endpoint = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&limit=6`;
+						fetch(endpoint)
+						  .then(response => response.text())
+						  .then(data => {
+							const parser = new DOMParser();
+							const xmlData = parser.parseFromString(data, 'application/xml');
+							var trackName = xmlData.querySelector('name').textContent;
+							var artist = xmlData.querySelector('artist').textContent;
+							var albumCoverURL = xmlData.querySelector('image[size="extralarge"]').textContent;
+							document.getElementById('trackName').innerText = trackName;
+							document.getElementById('Artist').innerText = artist;
+							document.getElementById('albumCover').src = albumCoverURL;
+							albumCover.onload = function() {const dominantColor = getDominantColor();
+							document.body.style.backgroundColor = dominantColor;
+							sessionStorage.setItem('latestTrack', trackName);
+								};
+							})
+					}
 			window.onload = function() {
-			    const endpoint = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&limit=6`;
-				    fetch(endpoint)
-					  .then(response => response.text())
-					  .then(data => {
-						const parser = new DOMParser();
-						const xmlData = parser.parseFromString(data, 'application/xml');
-						const trackName = xmlData.querySelector('name').textContent;
-						const artist = xmlData.querySelector('artist').textContent;
-						const album = xmlData.querySelector('album').textContent;
-						const albumCoverURL = xmlData.querySelector('image[size="extralarge"]').textContent;
-						document.getElementById('trackName').innerText = trackName;
-						document.getElementById('Artist').innerText = artist;
-						document.getElementById('albumCover').src = albumCoverURL;
-						document.getElementById('albumCover').alt = album;
-						albumCover.onload = function() {const dominantColor = getDominantColor();
-						document.body.style.backgroundColor = dominantColor;
-							};
-						})
-									
+				getLatestInfo();
+				setInterval(getLatestInfo, 20000);
 			};
 	</script>
 <style>
