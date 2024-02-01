@@ -10,8 +10,8 @@
 <script>
 
 </script>
-<h1>alex is listening to:</h1>
-<p><span id="trackName"></span> by <span id="Artist"></span></p>
+<h1 id="h1">alex is listening to:</h1>
+<p id="p"><span id="trackName"></span> by <span id="Artist"></span></p>
 <img id="albumCover" src="" alt="" crossorigin="anonymous"></img>	
 	<script>
 					function getDominantColor() {
@@ -47,15 +47,21 @@
 						  .then(data => {
 							const parser = new DOMParser();
 							const xmlData = parser.parseFromString(data, 'application/xml');
-							var trackName = xmlData.querySelector('name').textContent;
-							var artist = xmlData.querySelector('artist').textContent;
-							var albumCoverURL = xmlData.querySelector('image[size="extralarge"]').textContent;
+							const trackName = xmlData.querySelector('name').textContent;
+							const artist = xmlData.querySelector('artist').textContent;
+							const albumCoverURL = xmlData.querySelector('image[size="extralarge"]').textContent;
 							document.getElementById('trackName').innerText = trackName;
 							document.getElementById('Artist').innerText = artist;
 							document.getElementById('albumCover').src = albumCoverURL;
-							albumCover.onload = function() {const dominantColor = getDominantColor();
+							albumCover.onload = function() {
+							dominantColor = getDominantColor();
 							document.body.style.backgroundColor = dominantColor;
-							sessionStorage.setItem('latestTrack', trackName);
+			                rgbValues = dominantColor.match(/\d+/g).map(Number);
+							luminance = (0.2126 * rgbValues[0] + 0.7152 * rgbValues[1] + 0.0722 * rgbValues[2]);
+							if (luminance < 127.5) {
+								h1.style.color = 'white';
+								p.style.color = 'white';
+							}
 								};
 							})
 					}
