@@ -12,7 +12,8 @@
 </script>
 <h1 id="h1">alex is listening to:</h1>
 <p id="p"><span id="trackName"></span> by <span id="Artist"></span></p>
-<img id="albumCover" src="" alt="" crossorigin="anonymous"></img>	
+<img id="albumCover" src="" alt="" crossorigin="anonymous"></img>
+<p>for the <span id="ordinal"></span> time</p>	
 	<script>
 					function getDominantColor() {
 						const img = document.getElementById('albumCover');
@@ -40,9 +41,23 @@
 
 						return `rgb(${avgR}, ${avgG}, ${avgB})`;
 					}
+					function getOrdinal(number) {
+						const remainder10 = number % 10;
+						const remainder100 = number % 100;
+						if (remainder10 === 1 && remainder100 !== 11) {
+							return number + 'st';
+						} else if (remainder10 === 2 && remainder100 !== 12) {
+							return number + 'nd';
+						} else if (remainder10 === 3 && remainder100 !== 13) {
+							return number + 'rd';
+						} else {
+							return number + 'th';
+						}
+					}
 					function getLatestInfo() {
-						const endpoint = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&limit=6`;
-						fetch(endpoint)
+						const userEndpoint = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&limit=1`;
+						let mbid;
+						fetch(userEndpoint)
 						  .then(response => response.text())
 						  .then(data => {
 							const parser = new DOMParser();
@@ -65,8 +80,19 @@
 							else {
 								h1.style.color = 'black';
 								p.style.color = 'black';}
-								};
-							})
+								}
+							trackEndpoint = `https://ws.audioscrobbler.com/2.0/?method=track.getInfo&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&track=${trackName}&artist=${artist}`;
+							fetch(trackEndpoint)
+							  .then(response => response.text())
+							  .then(data => {
+								const parser = new DOMParser();
+								const xmlData = parser.parseFromString(data, 'application/xml');
+								const playcount = xmlData.querySelector('userplaycount').textContent;
+								const ordinalPlaycount = getOrdinal(playcount)
+								document.getElementById('ordinal').innerText = ordinalPlaycount;
+							  });
+							});
+						
 					}
 			window.onload = function() {
 				getLatestInfo();
