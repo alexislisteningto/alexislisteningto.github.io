@@ -75,7 +75,8 @@
 								const parser = new DOMParser();
 								const xmlData = parser.parseFromString(data, 'application/xml');
 								const playcount = xmlData.querySelector('userplaycount').textContent;
-								const ordinalPlaycount = getOrdinal(playcount)
+								const incrementedPlaycount = (parseInt(playcount, 10) + 1).toString();
+								const ordinalPlaycount = getOrdinal(incrementedPlaycount)
 								document.getElementById('ordinal').innerText = ordinalPlaycount;
 							  });
 							});
