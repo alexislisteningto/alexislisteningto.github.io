@@ -1,118 +1,112 @@
 <!doctype html>
 <html lang="en">
-<head>
-		<title>what's alex listening to</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width,initial-scale=1">
-		<link rel="icon" href="favicon.ico" type="image/x-icon">
-</head>
-<body>
-<script>
+  <head>
+    <title>what's alex listening to</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+    <h1 id="h1">alex is listening to:</h1>
+    <p id="p"><span id="trackName"></span> by <span id="Artist"></span></p><img id="albumCover" src="" alt="" crossorigin="anonymous">
+    <p id="p2">for the <span id="ordinal"></span> time</p>
+    <script>
+      function getDominantColor() {
+        const img = document.getElementById('albumCover');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        let r = 0,
+          g = 0,
+          b = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i];
+          g += data[i + 1];
+          b += data[i + 2];
+        }
+        const pixelCount = data.length / 4;
+        const avgR = Math.round(r / pixelCount);
+        const avgG = Math.round(g / pixelCount);
+        const avgB = Math.round(b / pixelCount);
+        return `rgb(${avgR}, ${avgG}, ${avgB})`;
+      }
 
-</script>
-<h1 id="h1">alex is listening to:</h1>
-<p id="p"><span id="trackName"></span> by <span id="Artist"></span></p>
-<img id="albumCover" src="" alt="" crossorigin="anonymous"></img>
-<p id="p2">for the <span id="ordinal"></span> time</p>	
-	<script>
-					function getDominantColor() {
-						const img = document.getElementById('albumCover');
-						const canvas = document.createElement('canvas');
-						const ctx = canvas.getContext('2d');
-						canvas.width = img.width;
-						canvas.height = img.height;
-						ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      function getOrdinal(number) {
+        const remainder10 = number % 10;
+        const remainder100 = number % 100;
+        if (remainder10 === 1 && remainder100 !== 11) {
+          return number + 'st';
+        } else if (remainder10 === 2 && remainder100 !== 12) {
+          return number + 'nd';
+        } else if (remainder10 === 3 && remainder100 !== 13) {
+          return number + 'rd';
+        } else {
+          return number + 'th';
+        }
+      }
 
-						const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-						const data = imageData.data;
-
-						let r = 0, g = 0, b = 0;
-
-						for (let i = 0; i < data.length; i += 4) {
-							r += data[i];
-							g += data[i + 1];
-							b += data[i + 2];
-						}
-
-						const pixelCount = data.length / 4;
-						const avgR = Math.round(r / pixelCount);
-						const avgG = Math.round(g / pixelCount);
-						const avgB = Math.round(b / pixelCount);
-
-						return `rgb(${avgR}, ${avgG}, ${avgB})`;
-					}
-					function getOrdinal(number) {
-						const remainder10 = number % 10;
-						const remainder100 = number % 100;
-						if (remainder10 === 1 && remainder100 !== 11) {
-							return number + 'st';
-						} else if (remainder10 === 2 && remainder100 !== 12) {
-							return number + 'nd';
-						} else if (remainder10 === 3 && remainder100 !== 13) {
-							return number + 'rd';
-						} else {
-							return number + 'th';
-						}
-					}
-					function getLatestInfo() {
-						const userEndpoint = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&limit=1`;
-						let mbid;
-						fetch(userEndpoint)
-						  .then(response => response.text())
-						  .then(data => {
-							const parser = new DOMParser();
-							const xmlData = parser.parseFromString(data, 'application/xml');
-							const trackName = xmlData.querySelector('name').textContent;
-							const artist = xmlData.querySelector('artist').textContent;
-							const albumCoverURL = xmlData.querySelector('image[size="extralarge"]').textContent;
-							document.getElementById('trackName').innerText = trackName;
-							document.getElementById('Artist').innerText = artist;
-							document.getElementById('albumCover').src = albumCoverURL;
-							trackEndpoint = `https://ws.audioscrobbler.com/2.0/?method=track.getInfo&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&track=${trackName}&artist=${artist}`;
-							fetch(trackEndpoint)
-							  .then(response => response.text())
-							  .then(data => {
-								const parser = new DOMParser();
-								const xmlData = parser.parseFromString(data, 'application/xml');
-								const playcount = xmlData.querySelector('userplaycount').textContent;
-								const incrementedPlaycount = (parseInt(playcount, 10) + 1).toString();
-								const ordinalPlaycount = getOrdinal(incrementedPlaycount)
-								document.getElementById('ordinal').innerText = ordinalPlaycount;
-							  });
-							});
-						albumCover.onload = function() {
-							dominantColor = getDominantColor();
-							document.body.style.backgroundColor = dominantColor;
-			                rgbValues = dominantColor.match(/\d+/g).map(Number);
-							luminance = (0.2126 * rgbValues[0] + 0.7152 * rgbValues[1] + 0.0722 * rgbValues[2]);
-							if (luminance < 127.5) {
-								h1.style.color = 'white';
-								p.style.color = 'white';
-								p2.style.color = 'white';
-							}
-							else {
-								h1.style.color = 'black';
-								p.style.color = 'black';
-								p2.style.color = 'black';
-								}}
-					}
-			window.onload = function() {
-				getLatestInfo();
-				setInterval(getLatestInfo, 20000);
-			};
-	</script>
-<style>
-    @font-face {
+      function getLatestInfo() {
+        const userEndpoint = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&limit=1`;
+        let mbid;
+        fetch(userEndpoint).then(response => response.text()).then(data => {
+          const parser = new DOMParser();
+          const xmlData = parser.parseFromString(data, 'application/xml');
+          const trackName = xmlData.querySelector('name').textContent;
+          const artist = xmlData.querySelector('artist').textContent;
+          const albumCoverURL = xmlData.querySelector('image[size="extralarge"]').textContent;
+          document.getElementById('trackName').innerText = trackName;
+          document.getElementById('Artist').innerText = artist;
+          document.getElementById('albumCover').src = albumCoverURL;
+          trackEndpoint = `https://ws.audioscrobbler.com/2.0/?method=track.getInfo&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&track=${trackName}&artist=${artist}`;
+          fetch(trackEndpoint).then(response => response.text()).then(data => {
+            const parser = new DOMParser();
+            const xmlData = parser.parseFromString(data, 'application/xml');
+            const playcount = xmlData.querySelector('userplaycount').textContent;
+            const incrementedPlaycount = (parseInt(playcount, 10) + 1).toString();
+            const ordinalPlaycount = getOrdinal(incrementedPlaycount)
+            document.getElementById('ordinal').innerText = ordinalPlaycount;
+          });
+        });
+        albumCover.onload = function() {
+          dominantColor = getDominantColor();
+          document.body.style.backgroundColor = dominantColor;
+          rgbValues = dominantColor.match(/\d+/g).map(Number);
+          luminance = (0.2126 * rgbValues[0] + 0.7152 * rgbValues[1] + 0.0722 * rgbValues[2]);
+          if (luminance < 127.5) {
+            h1.style.color = 'white';
+            p.style.color = 'white';
+            p2.style.color = 'white';
+          } else {
+            h1.style.color = 'black';
+            p.style.color = 'black';
+            p2.style.color = 'black';
+          }
+        }
+      }
+      window.onload = function() {
+        getLatestInfo();
+        setInterval(getLatestInfo, 20000);
+      };
+    </script>
+    <style>
+      @font-face {
         font-family: 'Comic Sans MS';
         src: url('cs.woff2') format('woff2');
-    }
-	h1, p {
-		font-family: 'Comic Sans MS', cursive, sans-serif;
-		}
-	body {
-	max-width: max-content;
-	margin: auto;
-	}
-</style>
-</body>
+      }
+
+      h1,
+      p {
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+      }
+
+      body {
+        max-width: max-content;
+        margin: auto;
+      }
+    </style>
+  </body>
 </html>
