@@ -13,7 +13,7 @@
 <h1 id="h1">alex is listening to:</h1>
 <p id="p"><span id="trackName"></span> by <span id="Artist"></span></p>
 <img id="albumCover" src="" alt="" crossorigin="anonymous"></img>
-<p>for the <span id="ordinal"></span> time</p>	
+<p id="p2">for the <span id="ordinal"></span> time</p>	
 	<script>
 					function getDominantColor() {
 						const img = document.getElementById('albumCover');
@@ -68,19 +68,6 @@
 							document.getElementById('trackName').innerText = trackName;
 							document.getElementById('Artist').innerText = artist;
 							document.getElementById('albumCover').src = albumCoverURL;
-							albumCover.onload = function() {
-							dominantColor = getDominantColor();
-							document.body.style.backgroundColor = dominantColor;
-			                rgbValues = dominantColor.match(/\d+/g).map(Number);
-							luminance = (0.2126 * rgbValues[0] + 0.7152 * rgbValues[1] + 0.0722 * rgbValues[2]);
-							if (luminance < 127.5) {
-								h1.style.color = 'white';
-								p.style.color = 'white';
-							}
-							else {
-								h1.style.color = 'black';
-								p.style.color = 'black';}
-								}
 							trackEndpoint = `https://ws.audioscrobbler.com/2.0/?method=track.getInfo&user=nobody__home&api_key=bc139a6bdeaa921ed70e49ca9a21f683&track=${trackName}&artist=${artist}`;
 							fetch(trackEndpoint)
 							  .then(response => response.text())
@@ -92,7 +79,21 @@
 								document.getElementById('ordinal').innerText = ordinalPlaycount;
 							  });
 							});
-						
+						albumCover.onload = function() {
+							dominantColor = getDominantColor();
+							document.body.style.backgroundColor = dominantColor;
+			                rgbValues = dominantColor.match(/\d+/g).map(Number);
+							luminance = (0.2126 * rgbValues[0] + 0.7152 * rgbValues[1] + 0.0722 * rgbValues[2]);
+							if (luminance < 127.5) {
+								h1.style.color = 'white';
+								p.style.color = 'white';
+								p2.style.color = 'white';
+							}
+							else {
+								h1.style.color = 'black';
+								p.style.color = 'black';
+								p2.style.color = 'black';
+								}}
 					}
 			window.onload = function() {
 				getLatestInfo();
