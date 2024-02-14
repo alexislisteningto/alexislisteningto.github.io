@@ -10,7 +10,21 @@
     <h1 id="h1">alex is listening to:</h1>
     <p id="p"><span id="trackName"></span> by <span id="Artist"></span></p><img id="albumCover" src="" alt="" crossorigin="anonymous">
     <p id="p2">for the <span id="ordinal"></span> time</p>
-    <script>
+	<input id="textInput" type="text" placeholder="send me something">
+	<button id="button" onclick="sendMeMusic(document.getElementById('textInput').value)">submit</button>    
+	<script>
+	  function sendMeMusic(str) {
+		const postData = {content: `${str}`};
+		fetch('https://cors-anywhere.herokuapp.com/https://discord.com/api/webhooks/1207122135643070464/8149zbPwr6lY8KS_xGS7kDF1lXEXn1zf0lRQ4kuSw91SHPwlBqDs6DedjpbEyx7J8ZIs', {
+			method: 'post',
+			headers: {
+			accept: 'application.json',
+			'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(postData),
+			})
+		document.getElementById('textInput').value = '';
+	  }
       function getDominantColor() {
         const img = document.getElementById('albumCover');
         const canvas = document.createElement('canvas');
@@ -98,8 +112,7 @@
         src: url('cs.woff2') format('woff2');
       }
 
-      h1,
-      p {
+      h1, p, input, button {
         font-family: 'Comic Sans MS', cursive, sans-serif;
       }
 
