@@ -1,6 +1,6 @@
 function sendMeMusic(str) {
 		const postData = {content: `${str}`};
-		fetch('https://cors-anywhere.herokuapp.com/https://discord.com/api/webhooks/1207122135643070464/8149zbPwr6lY8KS_xGS7kDF1lXEXn1zf0lRQ4kuSw91SHPwlBqDs6DedjpbEyx7J8ZIs', {
+		fetch('https://corsproxy.io/?https://discord.com/api/webhooks/1207122135643070464/8149zbPwr6lY8KS_xGS7kDF1lXEXn1zf0lRQ4kuSw91SHPwlBqDs6DedjpbEyx7J8ZIs', {
 			method: 'post',
 			headers: {
 			accept: 'application.json',
