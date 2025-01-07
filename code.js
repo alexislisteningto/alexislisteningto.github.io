@@ -1,6 +1,6 @@
 function sendMeMusic(str) {
 		const postData = {content: `${str}`};
-		fetch('https://discord.com/api/webhooks/1213637694303895602/OFjdKbj2upgA3kxiFwTnwcvi_qEU0yBFXsQyqZ0w0YFNs7Bry3XSXBp2lumk_XQrrak5', {
+		fetch('https://discord.com/api/webhooks/1326011798201303080/-eXYggEANUNKmFPNBMwpgvO8yA8sswFoRTJVv7zw2quap-wuLLEmyvH7Z0a0K5cB5VQZ', {
 			method: 'post',
 			headers: {
 			accept: 'application.json',
