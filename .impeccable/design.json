@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-28T00:00:00Z",
+  "title": "Design System: alex is listening to",
+  "extensions": {
+    "colorMeta": {
+      "paper": { "role": "primary", "displayName": "Old Monitor Paper", "canonical": "#f6f0db", "tonalRamp": ["#2b281f", "#514b39", "#776e54", "#9d916f", "#c3b48a", "#ddcfaa", "#eee3c8", "#f6f0db"] },
+      "ink": { "role": "neutral", "displayName": "Soft Black Ink", "canonical": "#181512", "tonalRamp": ["#181512", "#38332d", "#595149", "#7a7065", "#9c9083", "#beb2a5", "#ded5cc", "#f4eee8"] },
+      "link": { "role": "secondary", "displayName": "Browser Blue", "canonical": "#0000ee", "tonalRamp": ["#00004d", "#000076", "#00009f", "#0000c8", "#2020ee", "#6666f3", "#aaaaf8", "#eeeeff"] },
+      "visited": { "role": "tertiary", "displayName": "Visited Purple", "canonical": "#551a8b", "tonalRamp": ["#210b35", "#3a125f", "#551a8b", "#713ca2", "#8e62b8", "#ad8acf", "#ceb6e4", "#eee5f6"] },
+      "error": { "role": "tertiary", "displayName": "Plain Error Red", "canonical": "#9b1c1c", "tonalRamp": ["#3d0909", "#681111", "#9b1c1c", "#b84238", "#ce6c61", "#df998f", "#edc6c0", "#faeeec"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Current Track Display", "purpose": "The live listening statement only." },
+      "body": { "displayName": "Homepage Body", "purpose": "All metadata, labels, controls, and lists." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "color-change", "value": "160ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Quiet state and background color changes only." }
+    ],
+    "breakpoints": [
+      { "name": "wide-list", "value": "760px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Recommendation Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "A square, native-looking submit control.",
+      "html": "<button class=\"ds-button\">send it</button>",
+      "css": ".ds-button { min-height: 44px; padding: 8px 16px; border: 2px solid #181512; border-radius: 0; background: #f6f0db; color: #181512; font: 400 1rem/1.5 'Comic Sans MS', 'Comic Sans', cursive; } .ds-button:hover { text-decoration: underline; } .ds-button:focus-visible { outline: 3px solid #0000ee; outline-offset: 2px; } .ds-button:active { background: #181512; color: #f6f0db; } .ds-button:disabled { opacity: .6; }"
+    },
+    {
+      "name": "Recommendation Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A visibly labeled square text field.",
+      "html": "<label class=\"ds-label\" for=\"ds-input\">send me something</label><input class=\"ds-input\" id=\"ds-input\" type=\"text\">",
+      "css": ".ds-label { display: block; margin-bottom: 4px; color: #181512; font: 400 1rem/1.5 'Comic Sans MS', 'Comic Sans', cursive; } .ds-input { min-height: 44px; padding: 8px; border: 2px solid #181512; border-radius: 0; background: #f6f0db; color: #181512; font: 400 1rem/1.5 'Comic Sans MS', 'Comic Sans', cursive; } .ds-input:focus-visible { outline: 3px solid #0000ee; outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Surviving Homepage",
+    "overview": "A personal homepage from the early web kept useful through careful modern engineering. The composition is direct, flat, and a little awkward on purpose. Dynamic album artwork and the color sampled from it provide all the visual spectacle the page needs.",
+    "keyCharacteristics": ["Comic Sans throughout", "Native-looking controls with square corners", "Album art as content and atmosphere", "Dense, legible lists instead of cards", "Quiet responsive behavior with no decorative motion"],
+    "rules": [
+      { "name": "The Album Owns the Hero Rule", "body": "The current cover may set the first viewport background. Every other section remains stable and readable.", "section": "colors" },
+      { "name": "The One Font Rule", "body": "Comic Sans is identity, not decoration. Do not introduce a tasteful second family.", "section": "typography" },
+      { "name": "The Flat Page Rule", "body": "If an element looks lifted off the page, flatten it.", "section": "elevation" }
+    ],
+    "dos": ["Do preserve Comic Sans, default-browser link conventions, hard edges, and slightly awkward directness.", "Do use real album art and Last.fm data.", "Do keep controls keyboard accessible with 44px touch targets.", "Do keep the first viewport focused on the current track."],
+    "donts": ["Don't use modern SaaS landing pages or portfolio templates as references.", "Don't use glassmorphism, gradients, rounded card grids, startup copy, or cinematic scroll effects.", "Don't add decorative cards, badges, pills, shadows, or icon bubbles.", "Don't smooth away the Web 1.0 personality."]
+  }
+}
