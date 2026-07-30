@@ -53,26 +53,31 @@ function createArtwork(image, alt, className) {
   return artwork;
 }
 
-function renderRecent(tracks) {
+function renderRecent(albums) {
   const fragment = document.createDocumentFragment();
 
-  for (const track of tracks) {
+  for (const [index, album] of albums.entries()) {
     const details = document.createElement("details");
     details.className = "recent-album";
 
+    const label = `${album.name} by ${album.artist}`;
     const summary = document.createElement("summary");
-    summary.append(createArtwork(track.image, `${track.album || track.name} by ${track.artist}`, "recent-art"));
+    summary.title = label;
+    summary.setAttribute("aria-describedby", `recent-tooltip-${index}`);
+    summary.append(createArtwork(album.image, label, "recent-art"));
     const accessibleName = document.createElement("span");
     accessibleName.className = "sr-only";
-    accessibleName.textContent = `${track.name} by ${track.artist}`;
+    accessibleName.textContent = label;
     summary.append(accessibleName);
 
     const caption = document.createElement("div");
     caption.className = "recent-caption";
+    caption.id = `recent-tooltip-${index}`;
+    caption.role = "tooltip";
     const link = document.createElement("a");
-    link.href = track.url;
-    link.textContent = track.album || track.name;
-    caption.append(link, document.createElement("br"), track.artist);
+    link.href = album.url;
+    link.textContent = album.name;
+    caption.append(link, document.createElement("br"), album.artist);
 
     details.append(summary, caption);
     fragment.append(details);
@@ -163,6 +168,7 @@ function renderCurrent(current) {
   if (!current) {
     elements.listeningStatus.textContent = "last.fm is being mysterious";
     elements.coverLink.hidden = true;
+    elements.playCount.hidden = true;
     return;
   }
 
@@ -172,6 +178,7 @@ function renderCurrent(current) {
   elements.artistName.textContent = current.artist;
   elements.trackLink.href = current.url;
   elements.coverLink.href = current.url;
+  elements.coverLink.hidden = false;
 
   if (current.image) {
     elements.cover.crossOrigin = "anonymous";
@@ -183,25 +190,39 @@ function renderCurrent(current) {
     elements.coverLink.hidden = true;
   }
 
+  elements.playCount.hidden = current.playcount <= 0;
   if (current.playcount > 0) {
     elements.playCount.textContent = `for the ${ordinal(current.playcount)} time`;
-    elements.playCount.hidden = false;
   }
 }
 
 async function loadMusic() {
   try {
-    const response = await fetch(`${API_ORIGIN}/api/music?v=3`, { headers: { accept: "application/json" } });
+    const response = await fetch(`${API_ORIGIN}/api/music?v=4`, { headers: { accept: "application/json" } });
     if (!response.ok) throw new Error(`music request failed with ${response.status}`);
     const music = await response.json();
     renderCurrent(music.current);
-    renderRecent(music.recent);
+    renderRecent(music.weeklyAlbums);
     renderTopAlbums(music.topAlbums);
   } catch (error) {
     console.error(error);
     elements.listeningStatus.textContent = "last.fm isn't answering right now";
-    elements.recentStatus.textContent = "couldn't get the last nine. try again in a minute.";
+    elements.recentStatus.textContent = "couldn't get this week's nine. try again in a minute.";
     elements.allTimeStatus.textContent = "the top 100 wandered off. try again in a minute.";
+  }
+}
+
+async function loadCurrent() {
+  try {
+    const response = await fetch(`${API_ORIGIN}/api/current?v=1`, {
+      headers: { accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error(`current track request failed with ${response.status}`);
+    const music = await response.json();
+    renderCurrent(music.current);
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -212,7 +233,7 @@ function maybeRenderTurnstile() {
     action: "recommend_music",
     callback: () => {
       elements.submit.disabled = false;
-      elements.formStatus.textContent = "ready when you are";
+      elements.formStatus.textContent = "";
       elements.formStatus.dataset.state = "ready";
     },
     "expired-callback": () => {
@@ -285,3 +306,4 @@ elements.form.addEventListener("submit", async (event) => {
 
 void loadMusic();
 void loadPublicConfig();
+window.setInterval(() => void loadCurrent(), 30_000);
