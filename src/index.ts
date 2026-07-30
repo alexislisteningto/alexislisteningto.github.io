@@ -102,41 +102,46 @@ function normalizeAlbum(album: JsonRecord) {
   };
 }
 
-async function musicResponse(env: Env): Promise<Response> {
-  const [recentPayload, topPayload] = await Promise.all([
-    fetchLastFm(env, "user.getrecenttracks", { limit: "9", extended: "0" }),
-    fetchLastFm(env, "user.gettopalbums", { limit: "100", period: "overall" }),
-  ]);
+async function currentTrack(env: Env) {
+  const recentPayload = await fetchLastFm(env, "user.getrecenttracks", { limit: "1", extended: "0" });
+  const currentRecord = records(nested(recentPayload, "recenttracks", "track"))[0];
+  if (!currentRecord) throw new Error("Last.fm returned no recent track");
 
-  const recentRecords = records(nested(recentPayload, "recenttracks", "track"));
-  const topRecords = records(nested(topPayload, "topalbums", "album"));
-  if (recentRecords.length === 0 || topRecords.length === 0) {
-    throw new Error("Last.fm returned incomplete music data");
-  }
-
-  const recent = recentRecords.slice(0, 9).map(normalizeTrack);
-  const currentRecord = recentRecords[0];
-  const currentBase = currentRecord ? normalizeTrack(currentRecord) : null;
-  const attributes = currentRecord && isRecord(currentRecord["@attr"]) ? currentRecord["@attr"] : {};
+  const currentBase = normalizeTrack(currentRecord);
+  const attributes = isRecord(currentRecord["@attr"]) ? currentRecord["@attr"] : {};
   const nowPlaying = text(attributes.nowplaying) === "true";
   let playcount = 0;
 
-  if (currentBase) {
-    try {
-      const info = await fetchLastFm(env, "track.getInfo", {
-        artist: currentBase.artist,
-        track: currentBase.name,
-      });
-      playcount = integer(nested(info, "track", "userplaycount"));
-    } catch (error) {
-      console.warn(JSON.stringify({ event: "lastfm_track_info_failed", error: String(error) }));
-    }
+  try {
+    const info = await fetchLastFm(env, "track.getInfo", {
+      artist: currentBase.artist,
+      track: currentBase.name,
+    });
+    playcount = integer(nested(info, "track", "userplaycount"));
+  } catch (error) {
+    console.warn(JSON.stringify({ event: "lastfm_track_info_failed", error: String(error) }));
+  }
+
+  return { ...currentBase, nowPlaying, playcount };
+}
+
+async function musicResponse(env: Env): Promise<Response> {
+  const [current, weeklyPayload, topPayload] = await Promise.all([
+    currentTrack(env),
+    fetchLastFm(env, "user.gettopalbums", { limit: "9", period: "7day" }),
+    fetchLastFm(env, "user.gettopalbums", { limit: "100", period: "overall" }),
+  ]);
+
+  const weeklyRecords = records(nested(weeklyPayload, "topalbums", "album"));
+  const topRecords = records(nested(topPayload, "topalbums", "album"));
+  if (weeklyRecords.length === 0 || topRecords.length === 0) {
+    throw new Error("Last.fm returned incomplete music data");
   }
 
   return json(
     {
-      current: currentBase ? { ...currentBase, nowPlaying, playcount } : null,
-      recent,
+      current,
+      weeklyAlbums: weeklyRecords.slice(0, 9).map(normalizeAlbum),
       topAlbums: topRecords.map(normalizeAlbum),
     },
     {
@@ -325,6 +330,16 @@ async function apiResponse(request: Request, env: Env, ctx: ExecutionContext): P
       return json({ error: "recommendations are not configured" }, { status: 503 });
     }
     return json({ turnstileSiteKey: env.TURNSTILE_SITE_KEY }, { headers: { "cache-control": "public, max-age=300" } });
+  }
+
+  if (url.pathname === "/api/current") {
+    if (request.method !== "GET") return json({ error: "method not allowed" }, { status: 405, headers: { allow: "GET" } });
+    try {
+      return json({ current: await currentTrack(env) }, { headers: { "cache-control": "no-store" } });
+    } catch (error) {
+      console.error(JSON.stringify({ event: "current_track_api_failed", error: String(error) }));
+      return json({ error: "Last.fm isn't answering right now" }, { status: 502 });
+    }
   }
 
   if (url.pathname === "/api/music") {

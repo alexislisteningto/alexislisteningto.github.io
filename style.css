@@ -214,8 +214,12 @@ input {
 
 .keep-scrolling {
   position: absolute;
-  right: max(1rem, env(safe-area-inset-right));
+  left: 50%;
   bottom: max(1rem, env(safe-area-inset-bottom));
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  text-align: center;
+  transform: translateX(-50%);
 }
 
 .album-section {
@@ -361,10 +365,8 @@ footer {
   text-align: center;
 }
 
-@media (hover: hover) {
-  .recent-album:hover .recent-caption {
-    visibility: visible;
-  }
+.recent-album:hover .recent-caption {
+  visibility: visible;
 }
 
 @media (min-width: 48rem) {

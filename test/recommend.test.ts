@@ -61,6 +61,62 @@ describe("GitHub Pages API access", () => {
   });
 });
 
+describe("GET /api/music", () => {
+  it("returns a nine-album weekly chart", async () => {
+    const outbound = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const outgoing = new Request(input, init);
+      const url = new URL(outgoing.url);
+      const method = url.searchParams.get("method");
+
+      if (method === "user.getrecenttracks") {
+        return Response.json({
+          recenttracks: {
+            track: [{
+              name: "Current track",
+              artist: { "#text": "Current artist" },
+              album: { "#text": "Current album" },
+              url: "https://last.fm/current",
+              image: [],
+              "@attr": { nowplaying: "true" },
+            }],
+          },
+        });
+      }
+      if (method === "track.getInfo") return Response.json({ track: { userplaycount: "12" } });
+      if (method === "user.gettopalbums") {
+        const count = url.searchParams.get("period") === "7day" ? 9 : 100;
+        return Response.json({
+          topalbums: {
+            album: Array.from({ length: count }, (_, index) => ({
+              name: `Album ${index + 1}`,
+              artist: { name: `Artist ${index + 1}` },
+              url: `https://last.fm/album/${index + 1}`,
+              image: [{ size: "extralarge", "#text": `https://images.example/${index + 1}.jpg` }],
+              playcount: String(100 - index),
+            })),
+          },
+        });
+      }
+      throw new Error(`Unexpected request: ${outgoing.method} ${outgoing.url}`);
+    });
+
+    const response = await exports.default.fetch("http://localhost/api/music?weekly-chart-test");
+    const body = await response.json() as { weeklyAlbums: unknown[]; topAlbums: unknown[] };
+
+    expect(response.status).toBe(200);
+    expect(body.weeklyAlbums).toHaveLength(9);
+    expect(body.topAlbums).toHaveLength(100);
+    const requests = outbound.mock.calls.map(([input, init]) => new URL(new Request(input, init).url));
+    expect(requests.some((url) => url.searchParams.get("period") === "7day" && url.searchParams.get("limit") === "9")).toBe(true);
+
+    const currentResponse = await exports.default.fetch("http://localhost/api/current?poll-test");
+    const currentBody = await currentResponse.json() as { current: { name: string; nowPlaying: boolean } };
+    expect(currentResponse.status).toBe(200);
+    expect(currentResponse.headers.get("cache-control")).toBe("no-store");
+    expect(currentBody.current).toMatchObject({ name: "Current track", nowPlaying: true });
+  });
+});
+
 describe("POST /api/recommend", () => {
   it("validates Turnstile and forwards one safe Discord message", async () => {
     const outbound = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
