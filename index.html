@@ -1,34 +1,67 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>what's alex listening to</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="what alex is listening to, recently and all time">
+    <meta name="theme-color" content="#f6f0db">
+    <title>what's alex listening to</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="preload" href="cs.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="style.css">
+    <script src="code.js" defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&amp;render=explicit" defer></script>
   </head>
   <body>
-  	<script src="code.js"></script>
-    <h1 id="h1">alex is listening to:</h1>
-    <p id="p"><span id="trackName"></span> by <span id="Artist"></span></p><img id="albumCover" src="" alt="" crossorigin="anonymous">
-    <p id="p2">for the <span id="ordinal"></span> time</p>
-	<br>
-	<input id="textInput" type="text" placeholder="send me something">
-	<button id="button" onclick="sendMeMusic(document.getElementById('textInput').value)">submit</button>    
-	<p id="p3">(seriously i actually read these)</p>
-    <style>
-      @font-face {
-        font-family: 'Comic Sans MS';
-        src: url('cs.woff2') format('woff2');
-      }
+    <a class="skip-link" href="#recently">skip to the albums</a>
 
-      h1, p, input, button {
-        font-family: 'Comic Sans MS', cursive, sans-serif;
-      }
+    <main>
+      <section class="hero" id="now" aria-labelledby="now-heading">
+        <div class="hero__content">
+          <p class="eyebrow" id="listening-status" aria-live="polite">checking last.fm...</p>
+          <h1 id="now-heading">alex is listening to:</h1>
 
-      body {
-        max-width: max-content;
-        margin: auto;
-      }
-    </style>
+          <a class="current-cover-link" id="current-cover-link" href="https://www.last.fm/user/nobody__home">
+            <img class="current-cover" id="current-cover" alt="" width="600" height="600">
+          </a>
+
+          <p class="current-track">
+            <a id="current-track-link" href="https://www.last.fm/user/nobody__home"><span id="track-name">something good, probably</span></a>
+            <span aria-hidden="true"> by </span>
+            <span class="sr-only">by </span><span id="artist-name">alex's last.fm</span>
+          </p>
+          <p class="play-count" id="play-count" hidden></p>
+
+          <form class="recommendation" id="recommendation-form">
+            <label for="recommendation-input">send me something</label>
+            <div class="recommendation__controls">
+              <input id="recommendation-input" name="recommendation" type="text" maxlength="280" autocomplete="off" required>
+              <button id="recommendation-submit" type="submit" disabled>send it</button>
+            </div>
+            <div id="turnstile-widget"></div>
+            <p class="form-status" id="form-status" aria-live="polite">loading the tiny spam checker...</p>
+            <p class="form-note">seriously, i actually read these</p>
+          </form>
+        </div>
+        <a class="keep-scrolling" href="#recently">recently ↓</a>
+      </section>
+
+      <section class="album-section recent-section" id="recently" aria-labelledby="recent-heading">
+        <h2 id="recent-heading">recently</h2>
+        <p id="recent-status" aria-live="polite">getting the last nine...</p>
+        <div class="recent-grid" id="recent-grid"></div>
+      </section>
+
+      <section class="album-section all-time-section" id="all-time" aria-labelledby="all-time-heading">
+        <h2 id="all-time-heading">all time</h2>
+        <p>according to last.fm, anyway.</p>
+        <p id="all-time-status" aria-live="polite">counting to 100...</p>
+        <ol class="all-time-list" id="all-time-list"></ol>
+      </section>
+    </main>
+
+    <footer>
+      <a href="https://www.last.fm/user/nobody__home">stalk the raw data on last.fm</a>
+    </footer>
   </body>
 </html>

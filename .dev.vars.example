@@ -1,0 +1,8 @@
+# Copy to .dev.vars for local development.
+LASTFM_API_KEY=
+DISCORD_WEBHOOK_URL=
+TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_HOSTNAMES=localhost,127.0.0.1
+ALLOWED_ORIGINS=http://localhost:8787,http://127.0.0.1:8787
+# Cloudflare's always-pass test secret. Never use this value on a public hostname.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
